@@ -1,0 +1,64 @@
+
+For security reasons browsers does not allow cross domain ajax request.
+There are 2 ways to get around this problem.
+
+FOR TODAYS SESSION [We are using JSONP (JSON with Padding)]
+
+relative url - you can only use this if the api and web site are under the same project or domain.
+
+http://localhost:1234/api/methodName
+http - Protocol
+localhost or facebook.com - domain
+:1234 - port
+/api/methodName - resource
+
+1. Create Api
+
+2. Install package on your web project and api project
+
+  You can use 2 way to install the package
+  A. Tools >  NuGet Pakage Manager > Package Manager Console
+  Execute this command : Install-package WebApiContrib.Formatting.Jsonp
+
+  B. Tools > NuGet Pakage Manager
+           > Manage Nuget Packages for Solution
+           > Browse Menu
+           > write [WebApiContrib.Formatting.Jsonp] on the search field
+           > click install / update
+
+3. Go to your API project
+  Setup configuration
+
+  A. Go to your API_Project > App_Start > WebApiConfig.cs
+  B. Write this codes under REGISTER class
+
+    using WebApiContrib.Formatting.Jsonp;
+
+    var jsonpFormatter = new JsonpMediaTypeFormatter(config.Formatters.JsonFormatter);
+    config.Formatters.Insert(0, jsonpFormatter);
+
+4. Go to fiddler and add the parameter to call your api methods
+  http://localhost:49871/api/values?callback=apiResult [add ?callback=apiResult to bypass the jsonp response]
+
+5. Go to your web project and call api using jquery ajax
+
+  Write this codes
+  function yourFunctionName(callback) {
+    vdtl = {}
+    dtl = [];
+
+    vdtl["name"] = "";
+    vdtl["address"] = "";
+    dtl.push(vdtl);
+
+    $.ajax({
+        url: "http://Domain:port/api/ApiControllerName/MethodName",
+        type: "api verb[GET,POST,PUT,DELETE]",
+        datatype: "jsonp",
+        data: JSON.stringify(dtl), //conflict on passing json array to jsonpFormatter
+        Accept: "applicaton/json",
+        success: function (data) {
+            do something here....
+        }
+    });
+    }
